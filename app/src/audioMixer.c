@@ -372,12 +372,6 @@ static void fillPlaybackBuffer(short *buff, int size)
 	 *
 	 */
 
-
-
-
-
-
-
 }
 
 
@@ -388,17 +382,12 @@ void* playbackThread(void* arg)
 	while (!stopping) {
 		// Generate next block of audio
 		fillPlaybackBuffer(playbackBuffer, playbackBufferSize);
-		// for(int i = 0; i < playbackBufferSize; i++) {
-		// 	printf("%d\n",playbackBuffer[i]);
-		// }
+
 
 		// Output the audio
-		// printf("%ld\n",playbackBufferSize);
 		snd_pcm_sframes_t frames = snd_pcm_writei(handle,
 				playbackBuffer, playbackBufferSize);
 
-		// snd_pcm_sframes_t frames = snd_pcm_writei(handle,
-				// playbackBuffer, 12495);
 
 		// Check for (and handle) possible error conditions on output
 		if (frames < 0) {

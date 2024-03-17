@@ -1,8 +1,15 @@
 #include "hal/joystick.h"
+#include "../../app/include/audioMixer.h"
+#include "../../app/include/time_helpers.h"
+#include "../../app/include/beatMaker.h"
+#include <pthread.h>
 
 // Everything surrounding joystick functionality and I/O
 
 static bool is_initialized = false;
+static bool stopping = false;
+
+static pthread_t joystickThreadId;
 
 // Helpers to work within joystick.c
 static enum Direction i2j(int joystickInd);
@@ -11,6 +18,8 @@ static void joystick_closeGPIOFile(FILE *GPIOFile);
 
 // This is here because only joystick uses it at the moment, but with a different project should probably move it to utils
 static void runCommand(char *command);
+
+static void *joystickThread(void *args);
 
 // i2j: helper function to convert from loop index to a joystick direction.
 // The order of the directions does not matter, but...
@@ -26,6 +35,8 @@ static enum Direction i2j(int joystickInd)
             return RIGHT;
         case 3:
             return LEFT;
+        case 4:
+            return IN;
         default:
             return NONE;
     }
@@ -84,7 +95,9 @@ static void runCommand(char *command)
 // Initialization: Make sure configurations are set and joystick directions set to "in"
 void joystick_init()
 {
-    runCommand("~/config-pins.sh");
+    // runCommand("~/config-pins.sh");
+    system("config-pin p8_47 gpio > /dev/null");
+    // system("echo in > /sys/class/gpio/gpio27/direction");
     // ensure that all joystick directions are set to "in"
     for(size_t i = 0; i < NUM_JOYSTICK_DIRECTIONS; i++) {
 
@@ -92,6 +105,8 @@ void joystick_init()
         fprintf(cur, "%s","in");
         joystick_closeGPIOFile(cur);
     }
+
+    pthread_create(&joystickThreadId, NULL, joystickThread, NULL);
 
     is_initialized = true;   
 }
@@ -132,4 +147,47 @@ enum Direction joystick_getCurrentDirection()
     }
 
     return NONE;
+}
+
+static void setVolOrTempoOrMode()
+{
+        if(joystick_getCurrentDirection() == UP) {
+            AudioMixer_setVolume(AudioMixer_getVolume() + 5);
+        }
+        if(joystick_getCurrentDirection() == DOWN) {
+            AudioMixer_setVolume(AudioMixer_getVolume() - 5);
+        }
+        if(joystick_getCurrentDirection() == LEFT) {
+            beatMaker_setTempo(beatMaker_getTempo() - 5);
+        }
+        if(joystick_getCurrentDirection() == RIGHT) {
+            beatMaker_setTempo(beatMaker_getTempo() + 5);
+        }
+        if(joystick_getCurrentDirection() == IN) {
+            beatMaker_incBeatMode();
+        }
+}
+
+void *joystickThread(void *args)
+{
+    (void) args;
+
+    while(!stopping) {
+
+        setVolOrTempoOrMode();
+
+        long long timeSincePressed = time_getTimeInMs();
+
+        while(joystick_isPressed() && time_getTimeInMs() - timeSincePressed < 750) {}
+
+        while(joystick_isPressed()) {
+
+            setVolOrTempoOrMode();
+
+            time_sleepForMs(250);
+
+        }
+
+    }
+
 }

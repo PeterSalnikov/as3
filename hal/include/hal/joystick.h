@@ -11,7 +11,7 @@
 #ifndef JOYSTICK_H
 #define JOYSTICK_H
 
-#define NUM_JOYSTICK_DIRECTIONS 4
+#define NUM_JOYSTICK_DIRECTIONS 5
 #define JOYSTICK_BUF 50
 #define JOYSTICK_PATH "/sys/class/gpio/gpio"
 
@@ -20,6 +20,7 @@ enum Direction {
     DOWN = 46,
     LEFT = 65,
     RIGHT = 47,
+    IN = 27,
     NONE = -1
 };
 
