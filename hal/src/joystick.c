@@ -97,7 +97,16 @@ void joystick_init()
 {
     // runCommand("~/config-pins.sh");
     system("config-pin p8_47 gpio > /dev/null");
+    // system("echo in > /sys/class/gpio/gpio47/direction");
+    system("config-pin p8_26 gpio > /dev/null");
+    // system("echo in > /sys/class/gpio/gpio26/direction");
+    system("config-pin p8_46 gpio > /dev/null");
+    // system("echo in > /sys/class/gpio/gpio46/direction");
+    system("config-pin p8_65 gpio > /dev/null");
+    // system("echo in > /sys/class/gpio/gpio65/direction");
+    system("config-pin p8_27 gpio > /dev/null");
     // system("echo in > /sys/class/gpio/gpio27/direction");
+
     // ensure that all joystick directions are set to "in"
     for(size_t i = 0; i < NUM_JOYSTICK_DIRECTIONS; i++) {
 

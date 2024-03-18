@@ -1,8 +1,10 @@
+/* 
+Joystick file taken from As1. Contains functions for checking if the joystick is pressed, and to get the direction that it's pressed in.
+ */
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
 #include<string.h>
-
 #include<sys/mman.h>
 #include<fcntl.h>
 #include<sys/stat.h>

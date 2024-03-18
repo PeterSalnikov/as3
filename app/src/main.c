@@ -6,12 +6,17 @@
 
 #include <alsa/asoundlib.h>
 
+#include "textDisplay.h"
+#include "periodTimer.h"
 #include "audioMixer.h"
 #include "beatMaker.h"
 #include "beatLib.h"
+#include "udp.h"
 #include "time_helpers.h"
 #include "hal/joystick.h"
-#include<stdbool.h>
+#include "hal/accelerometer.h"
+#include <stdbool.h>
+
 // File used for play-back:
 // If cross-compiling, must have this file available, via this relative path,
 // on the target when the application is run. This example's Makefile copies the wave-files/
@@ -21,21 +26,21 @@
 #define NUM_CHANNELS  1
 #define SAMPLE_SIZE   (sizeof(short)) 	// bytes per sample
 
-
-
-
 int main(void)
 {
+	Period_init();
+	i2c_init();
 	joystick_init();
+	textDisplay_init();
 	AudioMixer_init();
 	beatMaker_init();
+	udp_init();
 
 	beatLib_loadRockBeat();
 
-	// mode = OFF;
 	// Play Audio
-	while(1) {
-
+	while(udp_isInitialized()) {
+		// switch the beats based on BeatMode
 		switch(beatMaker_getBeatMode()) {
 			case OFF:
 				break;
@@ -53,7 +58,11 @@ int main(void)
 
 	}
 
+	// Some modules don't need cleanup
+	udp_cleanup();
+	i2c_cleanup();
 	AudioMixer_cleanup();
+	Period_cleanup();
 
 	printf("Done!\n");
 	return 0;

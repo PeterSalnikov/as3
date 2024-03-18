@@ -8,6 +8,7 @@
 #include <limits.h>
 #include <alloca.h> // needed for mixer
 
+#include "periodTimer.h"
 
 static snd_pcm_t *handle;
 
@@ -382,7 +383,8 @@ void* playbackThread(void* arg)
 	while (!stopping) {
 		// Generate next block of audio
 		fillPlaybackBuffer(playbackBuffer, playbackBufferSize);
-
+		
+		Period_markEvent(PERIOD_EVENT_AUDIO);
 
 		// Output the audio
 		snd_pcm_sframes_t frames = snd_pcm_writei(handle,

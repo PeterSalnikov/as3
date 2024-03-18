@@ -25,6 +25,11 @@ void beatMaker_init()
     beatMode = OFF;
 }
 
+void beatMaker_cleanup()
+{
+    // do nothing
+}
+
 enum BeatMode beatMaker_getBeatMode()
 {
     return beatMode;
